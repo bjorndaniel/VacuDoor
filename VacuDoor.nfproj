@@ -21,8 +21,7 @@
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
   <ItemGroup>
     <Compile Include="ApWebServer.cs" />
-    <Compile Include="DCMotor.cs" />
-    <Compile Include="DCMotor2PinNoEnable.cs" />
+    <Compile Include="ControlWebServer.cs" />
     <Compile Include="GlobalUsings.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -31,6 +30,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ServoControl.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="Wireless80211.cs" />
     <Compile Include="WirelessAP.cs" />
@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Html\mainAP.html" />
+    <Content Include="Resources\Html\mainControl.html" />
     <Content Include="Resources\Images\favicon.png" />
   </ItemGroup>
   <ItemGroup>

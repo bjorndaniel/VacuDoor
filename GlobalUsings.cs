@@ -10,3 +10,6 @@ global using System.Threading;
 global using AuthenticationType = System.Net.NetworkInformation.AuthenticationType;
 global using System.Collections;
 global using System.IO;
+global using Iot.Device.ServoMotor;
+global using nanoFramework.Hardware.Esp32;
+global using System.Device.Pwm;

@@ -4,17 +4,37 @@ namespace VacuDoor;
 public class Program
 {
     // Connected Station count
-    private static int connectedCount = 0;
+    private static int _connectedCount = 0;
     // GPIO pin used to put device into AP set-up mode
     private const int SETUP_PIN = 5;
     //Period of the PWM signal in milliseconds
     private const double PERIOD = 10.0;
     //Web server to use for AP set-up
-    private static ApWebServer apServer = new();
+    private static ApWebServer _apServer = new();
+    private static ControlWebServer _controlServer;
+    private static ServoMotor _servoMotor;
 
     public static void Main()
     {
         Debug.WriteLine("VacuDoor starting!");
+        InitializeWifi();
+        _apServer.Stop();
+        Configuration.SetPinFunction(16, DeviceFunction.PWM1);
+
+        using PwmChannel pwmChannel = PwmChannel.CreateFromPin(16, 50);
+        _servoMotor = new ServoMotor(
+            pwmChannel,
+            180,
+            544,
+            2400);
+        _servoMotor.Start();
+        _controlServer = new();
+        _controlServer.Start(_servoMotor);
+        Thread.Sleep(Timeout.Infinite);
+    }
+
+    private static void InitializeWifi()
+    {
         var gpioController = new GpioController();
         var setupButton = gpioController.OpenPin(SETUP_PIN, PinMode.InputPullDown);
         if (!Wireless80211.IsEnabled() || setupButton.Read() == PinValue.Low)
@@ -44,7 +64,7 @@ public class Program
             //NetworkChange.NetworkAPStationChanged += NetworkChange_NetworkAPStationChanged;
             // Now that the normal Wifi is deactivated, that we have setup a static IP
             // We can start the Web server
-            apServer.Start();
+            //_apServer.Start();
         }
         else
         {
@@ -80,86 +100,5 @@ public class Program
                 Debug.WriteLine($"Ip Address: {ni.IPv4Address}");
             }
         }
-        // Just wait for now
-        // Here you would have the reset of your program using the client WiFI link
-        Thread.Sleep(Timeout.Infinite);
     }
 }
-
-
-
-//Configuration.SetPinFunction(16, DeviceFunction.PWM1);
-
-//using PwmChannel pwmChannel = PwmChannel.CreateFromPin(16, 50);
-//var servoMotor = new ServoMotor(
-//    pwmChannel,
-//    180,
-//    900,
-//    2100);
-
-//servoMotor.Start();  // Enable control signal.
-
-//// Move position.
-//servoMotor.WriteAngle(0); // ~0.9ms; Approximately 0 degrees.
-//Thread.Sleep(1500);
-////servoMotor.WriteAngle(90); // ~0.9ms; Approximately 0 degrees.
-//Thread.Sleep(1500);
-//servoMotor.WriteAngle(0); // ~0.9ms; Approximately 0 degrees.
-
-//servoMotor.WritePulseWidth(90); // ~1.5ms; Approximately 90 degrees.
-//servoMotor.WritePulseWidth(180); // ~2.1ms; Approximately 180 degrees.
-
-//servoMotor.Stop(); // Disable control signal.
-//Configuration.SetPinFunction(22, DeviceFunction.PWM2);
-//var sw = Stopwatch.StartNew();
-//// 1 pin mode
-////using (DCMotor motor = DCMotor.Create(16))
-////using (DCMotor motor = DCMotor.Create(PwmChannel.Create(9, 0, frequency: 50)))
-//// 2 pin mode
-//using (DCMotor motor = DCMotor.Create(16, 22))
-////using (DCMotor motor = DCMotor.Create(new SoftwarePwmChannel(16, frequency: 50), 22))
-//// 2 pin mode with BiDirectional Pin
-//// using (DCMotor motor = DCMotor.Create(19, 26, null, true, true))
-//// using (DCMotor motor = DCMotor.Create(PwmChannel.Create(0, 1, 100, 0.0), 26, null, true, true))
-//// 3 pin mode
-//// using (DCMotor motor = DCMotor.Create(PwmChannel.Create(0, 0, frequency: 50), 23, 24))
-//// Start Stop mode - wrapper with additional methods to disable/enable output regardless of the Speed value
-//// using (DCMotorWithStartStop motor = new DCMotorWithStartStop(DCMotor.Create( _any version above_ )))
-////using (DCMotor motor = DCMotor.Create(6, 27, 22))
-//{
-//    bool done = false;
-//    motor.Speed = 0.0;
-//    Thread.Sleep(2000);
-//    Debug.WriteLine("Starting");
-//    string lastSpeedDisp = null;
-//    while (!done)
-//    {
-//        double time = sw.ElapsedMilliseconds / 1000.0;
-
-//        // Note: range is from -1 .. 1 (for 1 pin setup 0 .. 1)
-//        motor.Speed = 0.05; //Math.Sin(2.0 * Math.PI * 1 / Period);
-//        var disp = $"Speed = {motor.Speed:0.00}";
-//        //if (disp != lastSpeedDisp)
-//        //{
-//        //    lastSpeedDisp = disp;
-//        Debug.WriteLine(disp);
-//        //}
-
-//        Thread.Sleep(1000);
-//        Debug.WriteLine("Reversing");
-//        motor.Speed = -0.00;
-//        motor.Speed = -0.05;
-//        Thread.Sleep(1000);
-//        Debug.WriteLine("Stopping");
-//        motor.Speed = 0;
-//        done = true;
-//    }
-//}
-
-
-////var sw = Stopwatch.StartNew();
-////Thread.Sleep(Timeout.Infinite);
-
-//// Browse our samples repository: https://github.com/nanoframework/samples
-//// Check our documentation online: https://docs.nanoframework.net/
-//// Join our lively Discord community: https://discord.gg/gCyBu8T

@@ -42,6 +42,7 @@ namespace VacuDoor
         internal enum StringResources : short
         {
             mainAP = -17730,
+            mainControl = -6497,
         }
     }
 }
