@@ -74,7 +74,7 @@ internal class ApWebServer
 
                 Debug.WriteLine($"Wireless parameters SSID:{ssid} PASSWORD:{password}");
 
-                var message = "<p>New settings saved.</p><p>Rebooting device to put into normal mode</p>";
+                var message = "<p>New settings saved.</p><p>Reboot device to put into normal mode</p>";
 
                 responseString = CreateMainPage(message);
 
