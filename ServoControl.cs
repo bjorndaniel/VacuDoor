@@ -4,7 +4,7 @@ internal static class ServoControl
 {
     private static bool _isOpen;
 
-    public static bool Open(ServoMotor motor)
+    public static bool Open(ref ServoMotor motor)
     {
         try
         {
@@ -23,7 +23,7 @@ internal static class ServoControl
         return false;
     }
 
-    public static bool Close(ServoMotor motor)
+    public static bool Close(ref ServoMotor motor)
     {
         try
         {

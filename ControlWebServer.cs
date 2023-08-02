@@ -5,8 +5,9 @@ internal class ControlWebServer
     private HttpListener? _listener;
     private Thread? _serverThread;
     private static ServoMotor _servoMotor;
+    private static GpioPin? _laserPin;
 
-    public void Start(ServoMotor servoMotor)
+    public void Start(ref ServoMotor servoMotor, ref GpioPin laserPin)
     {
         if (_listener == null)
         {
@@ -14,6 +15,7 @@ internal class ControlWebServer
             _serverThread = new Thread(RunServer);
             _serverThread.Start();
             _servoMotor = servoMotor;
+            _laserPin = laserPin;
         }
     }
 
@@ -69,13 +71,26 @@ internal class ControlWebServer
                 }
                 else if (url[0].Contains("open"))
                 {
-                    var result = ServoControl.Open(_servoMotor);
+                    var result = ServoControl.Open(ref _servoMotor);
 
                     OutPutResponse(response, $"{{ \"status\": \"{(result ? "ok" : "error")}\" }}");
                 }
                 else if (url[0].Contains("close"))
                 {
-                    var result = ServoControl.Close(_servoMotor);
+                    var result = ServoControl.Close(ref _servoMotor);
+                    OutPutResponse(response, $"{{ \"status\": \"{(result ? "ok" : "error")}\" }}");
+                }
+                else if (url[0].Contains("on"))
+                {
+                    var result = true;
+                    _laserPin!.Write(PinValue.Low);
+
+                    OutPutResponse(response, $"{{ \"status\": \"{(result ? "ok" : "error")}\" }}");
+                }
+                else if (url[0].Contains("off"))
+                {
+                    var result = true;
+                    _laserPin!.Write(PinValue.High);
                     OutPutResponse(response, $"{{ \"status\": \"{(result ? "ok" : "error")}\" }}");
                 }
                 break;

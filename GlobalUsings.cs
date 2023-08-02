@@ -15,3 +15,8 @@ global using System.Net;
 global using System.Net.NetworkInformation;
 global using System.Threading;
 global using AuthenticationType = System.Net.NetworkInformation.AuthenticationType;
+global //WIFI SETUP FROM: https://github.com/nanoframework/Samples/tree/main/samples/WiFiAP
+using Iot.Device.Ssd13xx;
+global //WIFI SETUP FROM: https://github.com/nanoframework/Samples/tree/main/samples/WiFiAP
+
+using System.Device.Pwm;

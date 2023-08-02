@@ -1,6 +1,4 @@
 //WIFI SETUP FROM: https://github.com/nanoframework/Samples/tree/main/samples/WiFiAP
-using Iot.Device.Ssd13xx;
-using System.Device.Pwm;
 
 namespace VacuDoor;
 public class Program
@@ -9,6 +7,8 @@ public class Program
     private static int _connectedCount = 0;
     // GPIO pin used to put device into AP set-up mode
     private const int SETUP_PIN = 5;
+    private const int LASER_PIN = 23;
+    private const int LASER_TARGET_PIN = 19;
     //Period of the PWM signal in milliseconds
     private const double PERIOD = 10.0;
     //Web server to use for AP set-up
@@ -16,11 +16,17 @@ public class Program
     private static ControlWebServer? _controlServer;
     private static ServoMotor? _servoMotor;
     private static Ssd1306? _oled;
+    private static GpioController _gpioController = new();
+    private static GpioPin? _laserPin;
+    private static GpioPin? _laserTargetPin;
 
     public static void Main()
     {
         Debug.WriteLine("VacuDoor starting!");
-
+        _laserPin = _gpioController.OpenPin(LASER_PIN, PinMode.Output);
+        _laserTargetPin = _gpioController.OpenPin(LASER_TARGET_PIN, PinMode.Input);
+        _laserTargetPin.ValueChanged += OnLaserTargetChanged; ;
+        _laserPin!.Write(PinValue.High);
         Debug.WriteLine("OLED Init");
         int dataPin = 22;
         int clockPin = 21;
@@ -58,16 +64,28 @@ public class Program
             2400);
         _servoMotor.Start();
         _controlServer = new();
-        _controlServer.Start(_servoMotor);
+        _controlServer.Start(ref _servoMotor, ref _laserPin);
 
         Thread.Sleep(Timeout.Infinite);
     }
 
+    private static void OnLaserTargetChanged(object sender, PinValueChangedEventArgs e)
+    {
+        var value = _laserTargetPin!.Read();
+        var laserOn = _laserPin!.Read() == PinValue.Low;
+        if (value == PinValue.High && laserOn)
+        {
+            ServoControl.Close(ref _servoMotor);
+        }
+        //Debug.WriteLine($"Laser Target Changed {value}");
+        Debug.WriteLine($"Laser Target Changed {DateTime.UtcNow.Ticks}");
+    }
+
     private static void InitializeWifi()
     {
-        var gpioController = new GpioController();
-        var setupButton = gpioController.OpenPin(SETUP_PIN, PinMode.InputPullUp);
+        var setupButton = _gpioController.OpenPin(SETUP_PIN, PinMode.InputPullUp);
         var pinValue = setupButton.Read();
+
         if (!Wireless80211.IsEnabled() || pinValue == PinValue.High)
         {
             Wireless80211.Disable();
@@ -137,6 +155,7 @@ public class Program
                 _oled!.DrawString(0, 26, conf.Ssid, 1, true);
                 _oled!.DrawString(0, 42, networkInterfaces[0].IPv4Address, 1, true);
                 _oled!.Display();
+                _laserPin!.Write(PinValue.Low);
             }
             else
             {

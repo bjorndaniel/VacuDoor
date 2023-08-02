@@ -14,12 +14,26 @@
     <div class="d-flex flex-column min-vh-100 justify-content-center align-items-center">
         <div class="row h-100 justify-content-center align-items-center">
             <form class="col-12 text-center">
-                <div class="form-group">
-                    <h1>VacuDoor manual controls</h1>
+                <div class="form-group  py-5">
+                    <h1>VacuDoor controls</h1>
                 </div>
                 <div class="form-group">
-                    <button type="button" class="btn btn-success">Open</button>
-                    <button type="button" class="btn btn-danger">Close</button>
+                    <h2>Door controls</h2>
+                </div>
+                <div class="form-group">
+                    <button id="doorOpen" type="button" class="btn btn-success">Open</button>
+                    <button id="doorClose" type="button" class="btn btn-danger">Close</button>
+                </div>
+                <div class="form-group py-2">
+
+                </div>
+                    
+                <div class="form-group">
+                    <h2>Laser controls</h2>
+                </div>
+                <div class="form-group">
+                    <button id="laserOn" type="button" class="btn btn-success">On</button>
+                    <button id="laserOff" type="button" class="btn btn-danger">Off</button>
                 </div>
             </form>
         </div>
@@ -31,10 +45,12 @@
             integrity="sha384-Atwg2Pkwv9vp0ygtn1JAojH0nYbwNJLPhwyoVbhoPwBhjQPR5VtM2+xf0Uwh9KtT"
             crossorigin="anonymous"></script>
     <script>
-        const openButton = document.querySelector('.btn-success');
-        const closeButton = document.querySelector('.btn-danger');
+        const openDoorButton = document.getElementById('doorOpen');
+        const laserOnButton = document.getElementById('laserOn');
+        const closeDoorButton = document.getElementById('doorClose');
+        const laserOffButton = document.getElementById('laserOff');
 
-        openButton.addEventListener('click', () => {
+        openDoorButton.addEventListener('click', () => {
             fetch('/api/open')
                 .then(response => {
                     if (!response.ok) {
@@ -56,7 +72,7 @@
                 });
         });
 
-        closeButton.addEventListener('click', () => {
+        closeDoorButton.addEventListener('click', () => {
             fetch('/api/close')
                 .then(response => {
                     if (!response.ok) {
@@ -66,11 +82,59 @@
                 })
                 .then(data => {
                     console.log(data);
-                    alert('Door closed successfully');
+                    if (data.status === 'ok') {
+                        alert('Door closed successfully');
+                    } else {
+                        alert('Door failed to close');
+                    }
                 })
                 .catch(error => {
                     console.error('There was a problem with the fetch operation:', error);
                     alert('Failed to close door');
+                });
+        });
+
+        laserOnButton.addEventListener('click', () => {
+            fetch('/api/on')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'ok') {
+                        alert('Laser turned on successfully');
+                    } else {
+                        alert('Laser failed to turn on');
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    alert('Laser failed to turn on');
+                });
+        });
+
+        laserOffButton.addEventListener('click', () => {
+            fetch('/api/off')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'ok') {
+                        alert('Laser turned off successfully');
+                    } else {
+                        alert('Laser failed to turn off');
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    alert('Failed to turn off laser');
                 });
         });
     </script>
