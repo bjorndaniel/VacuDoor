@@ -73,7 +73,7 @@ public class Program
     {
         var value = _laserTargetPin!.Read();
         var laserOn = _laserPin!.Read() == PinValue.Low;
-        if (value == PinValue.High && laserOn)
+        if (value == PinValue.Low && laserOn)
         {
             ServoControl.Close(ref _servoMotor);
         }

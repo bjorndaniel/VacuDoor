@@ -12,7 +12,7 @@ internal static class ServoControl
             {
                 return false;
             }
-            motor.WriteAngle(180);
+            motor.WriteAngle(0);
             _isOpen = true;
             return true;
         }
@@ -31,7 +31,7 @@ internal static class ServoControl
             {
                 return false;
             }
-            motor.WriteAngle(0);
+            motor.WriteAngle(120);
             _isOpen = false;
             return true;
         }

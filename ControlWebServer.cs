@@ -126,8 +126,12 @@ internal class ControlWebServer
 
     static void OutPutByteResponse(HttpListenerResponse response, byte[] responseBytes)
     {
-        response.ContentLength64 = responseBytes.Length;
-        response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
+        try
+        {
+            response.ContentLength64 = responseBytes.Length;
+            response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
+        }
+        catch (Exception) { }
     }
 
     static Hashtable ParseParamsFromStream(Stream inputStream)
