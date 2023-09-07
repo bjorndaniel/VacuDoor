@@ -7,8 +7,11 @@ public class Program
     private static int _connectedCount = 0;
     // GPIO pin used to put device into AP set-up mode
     private const int SETUP_PIN = 5;
+    private const int DATA_PIN = 22;
+    private const int CLOCK_PIN = 21;
     private const int LASER_PIN = 23;
     private const int LASER_TARGET_PIN = 19;
+    private const int SERVO_PIN = 16;
     //Period of the PWM signal in milliseconds
     private const double PERIOD = 10.0;
     //Web server to use for AP set-up
@@ -28,17 +31,17 @@ public class Program
         _laserTargetPin.ValueChanged += OnLaserTargetChanged; ;
         _laserPin!.Write(PinValue.High);
         Debug.WriteLine("OLED Init");
-        int dataPin = 22;
-        int clockPin = 21;
+        //int dataPin = 22;
+        //int clockPin = 21;
         try
         {
-            Configuration.SetPinFunction(dataPin, DeviceFunction.I2C1_DATA);
-            Configuration.SetPinFunction(clockPin, DeviceFunction.I2C1_CLOCK);
+            Configuration.SetPinFunction(DATA_PIN, DeviceFunction.I2C1_DATA);
+            Configuration.SetPinFunction(CLOCK_PIN, DeviceFunction.I2C1_CLOCK);
             var i2c = I2cDevice.Create(new I2cConnectionSettings(1, Ssd1306.DefaultI2cAddress));
             _oled = new Ssd1306(i2c, Ssd13xx.DisplayResolution.OLED128x64);
             var clkpin = Configuration.GetFunctionPin(DeviceFunction.I2C1_CLOCK);
-            var datpin = Configuration.GetFunctionPin(DeviceFunction.I2C1_DATA);
-            Debug.WriteLine("Clock Pin " + clkpin + " DataPin: " + dataPin);
+            var datapin = Configuration.GetFunctionPin(DeviceFunction.I2C1_DATA);
+            Debug.WriteLine("Clock Pin " + clkpin + " DataPin: " + datapin);
             _oled.Font = new BasicFont();
             Debug.WriteLine("OLED Clear Screen");
             _oled.ClearScreen();
@@ -56,7 +59,7 @@ public class Program
         _apServer.Stop();
         Configuration.SetPinFunction(16, DeviceFunction.PWM1);
 
-        using PwmChannel pwmChannel = PwmChannel.CreateFromPin(16, 50);
+        using PwmChannel pwmChannel = PwmChannel.CreateFromPin(SERVO_PIN, 50);
         _servoMotor = new ServoMotor(
             pwmChannel,
             180,
