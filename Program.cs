@@ -127,22 +127,28 @@ public class Program
         {
             Debug.WriteLine($"Running in normal mode, connecting to Access point");
             var conf = Wireless80211.GetConfiguration();
+            var error = "";
             bool success;
+
             _oled!.ClearScreen();
-            _oled!.DrawString(0, 10, "Connecting to:", 1, true);
-            _oled!.DrawString(0, 26, conf.Ssid, 1, true);
+            _oled!.DrawString(0, 5, "Connecting to:", 1, true);
+            _oled!.DrawString(0, 21, conf.Ssid, 1, true);
             _oled!.Display();
             // For devices like STM32, the password can't be read
             if (string.IsNullOrEmpty(conf.Password))
             {
+                Debug.WriteLine($"Missing password");
+
                 // In this case, we will let the automatic connection happen
                 success = WifiNetworkHelper.Reconnect(requiresDateTime: true, token: new CancellationTokenSource(60000).Token);
             }
             else
             {
+                Debug.WriteLine($"Connecting to {conf.Ssid} {conf.Password}");
                 // If we have access to the password, we will force the reconnection
                 // This is mainly for ESP32 which will connect normaly like that.
-                success = WifiNetworkHelper.ConnectDhcp(conf.Ssid, conf.Password, requiresDateTime: true, token: new CancellationTokenSource(90000).Token);
+                success = WifiNetworkHelper.Reconnect();//  ConnectDhcp(conf.Ssid, conf.Password, requiresDateTime: true, token: new CancellationTokenSource(90000).Token);
+                error = WifiNetworkHelper.Status.GetNetworkHelperStatus();
             }
             var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (var ni in networkInterfaces)
@@ -154,20 +160,22 @@ public class Program
                 Debug.WriteLine($"Connection is {success}");
                 Debug.WriteLine($"We have a valid date: {DateTime.UtcNow}");
                 _oled!.ClearScreen();
-                _oled!.DrawString(0, 10, "Connected to:", 1, true);
-                _oled!.DrawString(0, 26, conf.Ssid, 1, true);
-                _oled!.DrawString(0, 42, networkInterfaces[0].IPv4Address, 1, true);
+                _oled!.DrawString(0, 5, "Connected to:", 1, true);
+                _oled!.DrawString(0, 21, conf.Ssid, 1, true);
+                _oled!.DrawString(0, 36, networkInterfaces[0].IPv4Address, 1, true);
                 _oled!.Display();
                 _laserPin!.Write(PinValue.Low);
             }
             else
             {
                 _oled!.ClearScreen();
-                _oled!.DrawString(0, 10, "Could not connect:", 1, true);
-                _oled!.DrawString(0, 26, conf.Ssid, 1, true);
-                _oled!.DrawString(0, 42, "Retry in AP mode", 1, true);
+                _oled!.DrawString(0, 5, "Could not connect:", 1, true);
+                _oled!.DrawString(0, 21, conf.Ssid, 1, true);
+                _oled!.DrawString(0, 37, "Retry in AP mode", 1, true);
+                _oled!.DrawString(0, 53, error, 1, true);
                 _oled!.Display();
                 Debug.WriteLine($"Something wrong happened, can't connect at all");
+                Debug.WriteLine(error);
             }
 
         }

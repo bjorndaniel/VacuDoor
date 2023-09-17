@@ -1,6 +1,4 @@
-﻿using Iot.Device.Ssd13xx;
-
-namespace VacuDoor;
+﻿namespace VacuDoor;
 
 internal class Utilities
 {
@@ -163,6 +161,32 @@ public class BasicFont : IFont
                 return _fontTable[0x20];
             else
                 return _fontTable[index - 0x20];
+        }
+    }
+}
+
+public static class EnumHelpers
+{
+    public static string GetNetworkHelperStatus(this NetworkHelperStatus status)
+    {
+        switch (status)
+        {
+            case NetworkHelperStatus.None:
+                return "None";
+            case NetworkHelperStatus.FailedNoNetworkInterface:
+                return "FailedNoNetworkInterface";
+            case NetworkHelperStatus.NetworkIsReady:
+                return "NetworkIsReady";
+            case NetworkHelperStatus.TokenExpiredWaitingIPAddress:
+                return "TokenExpiredWaitingIPAddress";
+            case NetworkHelperStatus.TokenExpiredWaitingDateTime:
+                return "";
+            case NetworkHelperStatus.ErrorConnetingToWiFiWhileScanning:
+                return "ErrorConnetingToWiFiWhileScanning";
+            case NetworkHelperStatus.ExceptionOccurred:
+                return "ExceptionOccurred";
+            default:
+                return "No enum value";
         }
     }
 }
